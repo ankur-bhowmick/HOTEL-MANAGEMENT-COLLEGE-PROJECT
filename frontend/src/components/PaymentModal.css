@@ -1,0 +1,472 @@
+/* ===== Payment Modal Styles ===== */
+
+.payment-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    animation: payOverlayIn 0.3s ease;
+}
+
+@keyframes payOverlayIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Modal Card */
+.payment-modal {
+    background: #ffffff;
+    border-radius: 24px;
+    max-width: 420px;
+    width: 92%;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+    position: relative;
+    animation: payModalIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.payment-modal::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #0095ff, #60a5fa, #10b981, #0095ff);
+    background-size: 300% 100%;
+    animation: gradientShift 3s ease infinite;
+}
+
+@keyframes payModalIn {
+    from { opacity: 0; transform: translateY(30px) scale(0.95); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.animate-fade-in {
+    animation: contentFade 0.4s ease;
+}
+
+@keyframes contentFade {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== QR Stage ===== */
+.payment-qr-stage {
+    padding: 32px 28px;
+    text-align: center;
+}
+
+.payment-header { margin-bottom: 16px; }
+
+.payment-logo { font-size: 36px; margin-bottom: 6px; }
+
+.payment-header h3 {
+    font-size: 22px;
+    font-weight: 800;
+    color: #1e293b;
+    margin-bottom: 2px;
+}
+
+.payment-hotel-name {
+    font-size: 14px;
+    color: #64748b;
+    font-weight: 500;
+}
+
+/* Booking Summary */
+.payment-summary {
+    background: #f8fafc;
+    border-radius: 12px;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    border: 1px solid #e2e8f0;
+    text-align: left;
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 0;
+    font-size: 13px;
+    color: #475569;
+}
+
+.summary-row span:last-child {
+    font-weight: 600;
+    color: #1e293b;
+}
+
+/* Amount Display */
+.payment-amount-display {
+    margin-bottom: 20px;
+    padding: 14px;
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+    border-radius: 16px;
+    border: 1px solid #bae6fd;
+}
+
+.amount-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #64748b;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.amount-value {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 2px;
+}
+
+.amount-value .currency {
+    font-size: 22px;
+    font-weight: 700;
+    color: #0284c7;
+}
+
+.amount-value .amount-num {
+    font-size: 34px;
+    font-weight: 900;
+    background: linear-gradient(135deg, #0284c7, #0ea5e9);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* QR Code */
+.qr-wrapper {
+    position: relative;
+    display: inline-block;
+    padding: 14px;
+    margin-bottom: 12px;
+}
+
+.qr-container {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #e2e8f0;
+}
+
+.qr-image {
+    width: 180px;
+    height: 180px;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+.qr-image.loaded { opacity: 1; }
+
+.qr-placeholder {
+    position: absolute;
+    font-size: 13px;
+    color: #94a3b8;
+}
+
+/* Scan Line */
+.qr-scan-line {
+    position: absolute;
+    top: 0; left: 5%;
+    width: 90%; height: 3px;
+    background: linear-gradient(90deg, transparent 0%, #0095ff 50%, transparent 100%);
+    box-shadow: 0 0 15px rgba(0, 149, 255, 0.6);
+    animation: scanLine 2.5s ease-in-out infinite;
+    z-index: 10;
+    border-radius: 2px;
+}
+
+@keyframes scanLine {
+    0% { top: 5%; }
+    50% { top: 90%; }
+    100% { top: 5%; }
+}
+
+/* QR Corner Brackets */
+.qr-corner {
+    position: absolute;
+    width: 20px; height: 20px;
+    border-color: #0095ff;
+    border-style: solid;
+    border-width: 0;
+}
+
+.qr-corner.tl { top: 0; left: 0; border-top-width: 3px; border-left-width: 3px; border-top-left-radius: 8px; }
+.qr-corner.tr { top: 0; right: 0; border-top-width: 3px; border-right-width: 3px; border-top-right-radius: 8px; }
+.qr-corner.bl { bottom: 0; left: 0; border-bottom-width: 3px; border-left-width: 3px; border-bottom-left-radius: 8px; }
+.qr-corner.br { bottom: 0; right: 0; border-bottom-width: 3px; border-right-width: 3px; border-bottom-right-radius: 8px; }
+
+.scan-instruction {
+    font-size: 13px;
+    color: #64748b;
+    margin-bottom: 10px;
+    font-weight: 500;
+}
+
+/* Payment Method Badges */
+.payment-methods {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+}
+
+.method-badge {
+    padding: 4px 12px;
+    background: #f1f5f9;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #475569;
+    border: 1px solid #e2e8f0;
+}
+
+/* Timer */
+.payment-timer { margin-bottom: 14px; }
+
+.timer-bar {
+    width: 100%; height: 4px;
+    background: #e2e8f0;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 8px;
+}
+
+.timer-progress {
+    height: 100%;
+    background: linear-gradient(90deg, #0095ff, #60a5fa);
+    border-radius: 4px;
+    transition: width 1s linear;
+}
+
+.timer-text {
+    font-size: 12px;
+    color: #94a3b8;
+    font-weight: 500;
+}
+
+/* Cancel Button */
+.btn-cancel-payment {
+    padding: 10px 28px;
+    background: transparent;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: none;
+    letter-spacing: 0;
+}
+
+.btn-cancel-payment:hover {
+    background: #fef2f2;
+    color: #ef4444;
+    border-color: #fecaca;
+}
+
+/* ===== Processing Stage ===== */
+.payment-processing-stage {
+    padding: 60px 28px;
+    text-align: center;
+}
+
+.processing-spinner {
+    position: relative;
+    width: 80px; height: 80px;
+    margin: 0 auto 24px;
+}
+
+.spinner-ring {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 3px solid transparent;
+}
+
+.spinner-ring:nth-child(1) { border-top-color: #0095ff; animation: spinRing 1.2s linear infinite; }
+.spinner-ring:nth-child(2) { inset: 8px; border-right-color: #60a5fa; animation: spinRing 1.5s linear infinite reverse; }
+.spinner-ring:nth-child(3) { inset: 16px; border-bottom-color: #10b981; animation: spinRing 1s linear infinite; }
+
+@keyframes spinRing { to { transform: rotate(360deg); } }
+
+.payment-processing-stage h3 {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 8px;
+}
+
+.payment-processing-stage p {
+    font-size: 14px;
+    color: #64748b;
+}
+
+.processing-dots {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 20px;
+}
+
+.processing-dots span {
+    width: 8px; height: 8px;
+    background: #0095ff;
+    border-radius: 50%;
+    animation: dotBounce 1.4s ease-in-out infinite;
+}
+
+.processing-dots span:nth-child(2) { animation-delay: 0.2s; }
+.processing-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes dotBounce {
+    0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+    40% { transform: scale(1.1); opacity: 1; }
+}
+
+/* ===== Success Stage ===== */
+.payment-success-stage {
+    padding: 50px 28px 40px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.success-checkmark-container {
+    width: 80px; height: 80px;
+    margin: 0 auto 20px;
+    position: relative;
+}
+
+.success-checkmark-container::after {
+    content: '';
+    position: absolute;
+    inset: -15px;
+    border-radius: 50%;
+    background: rgba(16, 185, 129, 0.1);
+    animation: successPulse 1.5s ease-out infinite;
+}
+
+@keyframes successPulse {
+    0% { transform: scale(0.8); opacity: 0.6; }
+    100% { transform: scale(1.6); opacity: 0; }
+}
+
+.success-checkmark { width: 80px; height: 80px; position: relative; z-index: 1; }
+
+.checkmark-circle {
+    stroke: #10b981;
+    stroke-width: 2;
+    stroke-dasharray: 166;
+    stroke-dashoffset: 166;
+    animation: drawCircle 0.6s ease-in-out forwards;
+}
+
+.checkmark-check {
+    stroke: #10b981;
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 48;
+    stroke-dashoffset: 48;
+    animation: drawCheck 0.4s 0.4s ease-in-out forwards;
+}
+
+@keyframes drawCircle { to { stroke-dashoffset: 0; } }
+@keyframes drawCheck { to { stroke-dashoffset: 0; } }
+
+.payment-success-stage h3 {
+    font-size: 22px;
+    font-weight: 800;
+    color: #10b981;
+    margin-bottom: 6px;
+}
+
+.success-amount {
+    font-size: 28px;
+    font-weight: 900;
+    color: #1e293b;
+    margin-bottom: 10px;
+}
+
+.success-message {
+    font-size: 14px;
+    color: #64748b;
+    font-weight: 500;
+}
+
+/* Confetti */
+.success-confetti {
+    position: absolute;
+    top: 40%; left: 50%;
+    pointer-events: none;
+}
+
+.confetti-piece {
+    position: absolute;
+    width: 8px; height: 8px;
+    border-radius: 2px;
+    opacity: 0;
+    animation: confettiFly 1.2s ease-out forwards;
+    animation-delay: var(--d, 0.3s);
+}
+
+@keyframes confettiFly {
+    0% { opacity: 1; transform: translate(0, 0) rotate(0deg) scale(1); }
+    100% { opacity: 0; transform: translate(var(--tx, 0), var(--ty, 0)) rotate(var(--r, 540deg)) scale(0.3); }
+}
+
+/* ===== Estimated Total in Booking Form ===== */
+.booking-estimate {
+    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+    border: 1px solid #bbf7d0;
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-top: 16px;
+    text-align: center;
+}
+
+.estimate-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #16a34a;
+    margin-bottom: 4px;
+}
+
+.estimate-amount {
+    font-size: 26px;
+    font-weight: 900;
+    color: #15803d;
+}
+
+.estimate-detail {
+    font-size: 12px;
+    color: #4ade80;
+    margin-top: 2px;
+    font-weight: 500;
+}

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import api from '../utils/api';
+import PaymentModal from '../components/PaymentModal';
 
 const UserDashboard = () => {
     const [hotels, setHotels] = useState([]);
@@ -9,6 +10,10 @@ const UserDashboard = () => {
     const [showBookingForm, setShowBookingForm] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
+
+    // Payment state
+    const [showPayment, setShowPayment] = useState(false);
+    const [pendingBooking, setPendingBooking] = useState(null);
 
     const [bookingForm, setBookingForm] = useState({
         hotelId: '',
@@ -71,6 +76,21 @@ const UserDashboard = () => {
         }
     };
 
+    // Calculate estimated total for live preview
+    const calculateTotal = () => {
+        if (!bookingForm.checkInDate || !bookingForm.checkOutDate || bookingForm.roomIds.length === 0) return { total: 0, days: 0 };
+        const checkIn = new Date(bookingForm.checkInDate);
+        const checkOut = new Date(bookingForm.checkOutDate);
+        const days = Math.ceil(Math.abs(checkOut - checkIn) / (1000 * 60 * 60 * 24));
+        if (days < 1) return { total: 0, days: 0 };
+        const selectedRooms = rooms.filter(r => bookingForm.roomIds.includes(r._id));
+        const total = selectedRooms.reduce((sum, room) => sum + (room.price * days), 0);
+        return { total, days };
+    };
+
+    const { total: estimatedTotal, days: estimatedDays } = calculateTotal();
+
+    // Step 1: User clicks "Proceed to Pay" → show payment modal
     const handleCreateBooking = async (e) => {
         e.preventDefault();
         setError('');
@@ -81,14 +101,57 @@ const UserDashboard = () => {
             return;
         }
 
+        const selectedRooms = rooms.filter(r => bookingForm.roomIds.includes(r._id));
+        const checkIn = new Date(bookingForm.checkInDate);
+        const checkOut = new Date(bookingForm.checkOutDate);
+        const days = Math.ceil(Math.abs(checkOut - checkIn) / (1000 * 60 * 60 * 24));
+
+        if (days < 1) {
+            setError('Minimum booking duration is 1 day');
+            return;
+        }
+
+        const totalPrice = selectedRooms.reduce((sum, room) => sum + (room.price * days), 0);
+        const hotel = hotels.find(h => h._id === bookingForm.hotelId);
+
+        setPendingBooking({
+            ...bookingForm,
+            totalPrice,
+            days,
+            roomCount: selectedRooms.length,
+            hotelName: hotel?.name || 'Hotel'
+        });
+
+        setShowBookingForm(false);
+        setShowPayment(true);
+    };
+
+    // Step 2: Payment auto-completes → create booking via API
+    const handlePaymentComplete = async () => {
+        setShowPayment(false);
+        setError('');
+
         try {
-            const response = await api.post('/bookings', bookingForm);
+            const response = await api.post('/bookings', {
+                hotelId: pendingBooking.hotelId,
+                roomIds: pendingBooking.roomIds,
+                checkInDate: pendingBooking.checkInDate,
+                checkOutDate: pendingBooking.checkOutDate
+            });
             setSuccess(response.data.message || 'Booking confirmed successfully!');
-            setShowBookingForm(false);
             setBookingForm({ hotelId: '', roomIds: [], checkInDate: '', checkOutDate: '' });
+            setPendingBooking(null);
         } catch (error) {
             setError(error.response?.data?.message || 'Failed to create booking');
+            setPendingBooking(null);
         }
+    };
+
+    // Cancel payment → return to booking form
+    const handlePaymentCancel = () => {
+        setShowPayment(false);
+        setPendingBooking(null);
+        setShowBookingForm(true);
     };
 
     const getMinDate = () => {
@@ -163,18 +226,47 @@ const UserDashboard = () => {
                                     Hold Ctrl (Windows) or Command (Mac) to select multiple rooms.
                                 </small>
                             </div>
+
+                            {/* Live Price Estimate */}
+                            {estimatedTotal > 0 && (
+                                <div className="booking-estimate">
+                                    <div className="estimate-label">Estimated Total</div>
+                                    <div className="estimate-amount">₹{estimatedTotal.toLocaleString('en-IN')}</div>
+                                    <div className="estimate-detail">
+                                        {bookingForm.roomIds.length} room(s) × {estimatedDays} night(s)
+                                    </div>
+                                </div>
+                            )}
+
                             <div className="modal-actions">
                                 <button type="button" onClick={() => setShowBookingForm(false)} className="btn btn-secondary">
                                     Cancel
                                 </button>
                                 <button type="submit" className="btn btn-success">
-                                    Confirm Booking
+                                    {estimatedTotal > 0
+                                        ? `Proceed to Pay ₹${estimatedTotal.toLocaleString('en-IN')}`
+                                        : 'Proceed to Pay'}
                                 </button>
                             </div>
                         </form>
                     </div>
                 </div>
             )}
+
+            {/* Payment Modal */}
+            <PaymentModal
+                isOpen={showPayment}
+                amount={pendingBooking?.totalPrice || 0}
+                hotelName={pendingBooking?.hotelName || ''}
+                bookingDetails={pendingBooking ? {
+                    checkInDate: pendingBooking.checkInDate,
+                    checkOutDate: pendingBooking.checkOutDate,
+                    roomCount: pendingBooking.roomCount,
+                    days: pendingBooking.days
+                } : null}
+                onPaymentComplete={handlePaymentComplete}
+                onCancel={handlePaymentCancel}
+            />
 
             {/* Hotels List */}
             <div className="card-grid">
