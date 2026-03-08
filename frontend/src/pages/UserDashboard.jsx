@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 import PaymentModal from '../components/PaymentModal';
 
@@ -10,6 +11,7 @@ const UserDashboard = () => {
     const [showBookingForm, setShowBookingForm] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
+    const navigate = useNavigate();
 
     // Payment state
     const [showPayment, setShowPayment] = useState(false);
@@ -138,9 +140,9 @@ const UserDashboard = () => {
                 checkInDate: pendingBooking.checkInDate,
                 checkOutDate: pendingBooking.checkOutDate
             });
-            setSuccess(response.data.message || 'Booking confirmed successfully!');
             setBookingForm({ hotelId: '', roomIds: [], checkInDate: '', checkOutDate: '' });
             setPendingBooking(null);
+            navigate('/user/bookings');
         } catch (error) {
             setError(error.response?.data?.message || 'Failed to create booking');
             setPendingBooking(null);
